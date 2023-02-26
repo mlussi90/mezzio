@@ -27,7 +27,8 @@ final class InMemoryContainer implements MutableMemoryContainerInterface
         return $this->services[$id];
     }
 
-    public function has(string $id): bool
+    /** @param string $id */
+    public function has($id): bool
     {
         return array_key_exists($id, $this->services);
     }
