@@ -17,6 +17,7 @@ use Mezzio\Handler\NotFoundHandler;
 use Mezzio\Middleware;
 use Mezzio\MiddlewareContainer;
 use Mezzio\MiddlewareFactory;
+use Mezzio\MiddlewareFactoryInterface;
 use Mezzio\Response\ServerRequestErrorResponseGenerator;
 use Mezzio\Router\RouterInterface;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,8 @@ class ConfigProviderTest extends TestCase
     {
         $aliases = $this->provider->getDependencies()['aliases'] ?? [];
 
+        self::assertArrayHasKey(RequestHandlerRunnerInterface::class, $aliases);
+        self::assertArrayHasKey(MiddlewareFactoryInterface::class, $aliases);
         self::assertArrayHasKey(DEFAULT_DELEGATE, $aliases);
         self::assertArrayHasKey(DISPATCH_MIDDLEWARE, $aliases);
         self::assertArrayHasKey(IMPLICIT_HEAD_MIDDLEWARE, $aliases);
