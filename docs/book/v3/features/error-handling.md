@@ -158,7 +158,6 @@ As an example, you could create a logging listener as follows:
 
 ```php
 <?php
-declare(strict_types=1);
 
 namespace Acme;
 
@@ -202,7 +201,6 @@ create your logger listener and attach it to your error handler:
 
 ```php
 <?php
-declare(strict_types=1);
 
 namespace Acme;
 
