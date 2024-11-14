@@ -6,8 +6,6 @@ namespace MezzioTest;
 
 use Laminas\HttpHandlerRunner\Emitter\EmitterInterface;
 use Laminas\HttpHandlerRunner\RequestHandlerRunnerInterface;
-use Laminas\ServiceManager\Config;
-use Laminas\ServiceManager\ConfigInterface;
 use Laminas\ServiceManager\ServiceManager;
 use Laminas\Stratigility\Middleware\ErrorHandler;
 use Mezzio\Application;
@@ -17,6 +15,7 @@ use Mezzio\Handler\NotFoundHandler;
 use Mezzio\Middleware;
 use Mezzio\MiddlewareContainer;
 use Mezzio\MiddlewareFactory;
+use Mezzio\MiddlewareFactoryInterface;
 use Mezzio\Response\ServerRequestErrorResponseGenerator;
 use Mezzio\Router\RouterInterface;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +35,9 @@ use const Mezzio\IMPLICIT_OPTIONS_MIDDLEWARE;
 use const Mezzio\NOT_FOUND_MIDDLEWARE;
 use const Mezzio\ROUTE_MIDDLEWARE;
 
-/** @psalm-import-type ServiceManagerConfigurationType from ConfigInterface */
+/**
+ * @psalm-import-type ServiceManagerConfiguration from ServiceManager
+ */
 class ConfigProviderTest extends TestCase
 {
     private ConfigProvider $provider;
@@ -50,6 +51,8 @@ class ConfigProviderTest extends TestCase
     {
         $aliases = $this->provider->getDependencies()['aliases'] ?? [];
 
+        self::assertArrayHasKey(RequestHandlerRunnerInterface::class, $aliases);
+        self::assertArrayHasKey(MiddlewareFactoryInterface::class, $aliases);
         self::assertArrayHasKey(DEFAULT_DELEGATE, $aliases);
         self::assertArrayHasKey(DISPATCH_MIDDLEWARE, $aliases);
         self::assertArrayHasKey(IMPLICIT_HEAD_MIDDLEWARE, $aliases);
@@ -132,12 +135,9 @@ class ConfigProviderTest extends TestCase
         }
     }
 
-    /** @psalm-param ServiceManagerConfigurationType $dependencies */
+    /** @psalm-param $dependencies ServiceManagerConfiguration */
     private function getContainer(array $dependencies): ServiceManager
     {
-        $container = new ServiceManager();
-        (new Config($dependencies))->configureServiceManager($container);
-
-        return $container;
+        return new ServiceManager($dependencies);
     }
 }

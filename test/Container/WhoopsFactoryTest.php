@@ -7,6 +7,10 @@ namespace MezzioTest\Container;
 use ArrayAccess;
 use Mezzio\Container\WhoopsFactory;
 use MezzioTest\InMemoryContainer;
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Whoops\Handler\JsonResponseHandler;
@@ -17,9 +21,7 @@ use Whoops\Util\Misc as WhoopsUtil;
 use function method_exists;
 use function sprintf;
 
-/**
- * @covers \Mezzio\Container\WhoopsFactory
- */
+#[CoversClass(WhoopsFactory::class)]
 class WhoopsFactoryTest extends TestCase
 {
     private InMemoryContainer $container;
@@ -36,10 +38,9 @@ class WhoopsFactoryTest extends TestCase
 
     public function assertWhoopsContainsHandler(string $type, Whoops $whoops, ?string $message = null): void
     {
-        $message = $message ?: sprintf('Failed to assert whoops runtime composed handler of type %s', $type);
+        $message = $message ?? sprintf('Failed to assert whoops runtime composed handler of type %s', $type);
         $r       = new ReflectionProperty($whoops, 'handlerStack');
-        $r->setAccessible(true);
-        $stack = $r->getValue($whoops);
+        $stack   = $r->getValue($whoops);
 
         $found = false;
         foreach ($stack as $handler) {
@@ -73,13 +74,13 @@ class WhoopsFactoryTest extends TestCase
     }
 
     /**
-     * @backupGlobals enabled
-     * @depends       testWillInjectJsonResponseHandlerIfConfigurationExpectsIt
-     * @dataProvider  provideConfig
      * @param bool  $showsTrace
      * @param bool  $isAjaxOnly
      * @param bool  $requestIsAjax
      */
+    #[DataProvider('provideConfig')]
+    #[Depends('testWillInjectJsonResponseHandlerIfConfigurationExpectsIt')]
+    #[BackupGlobals(true)]
     public function testJsonResponseHandlerCanBeConfigured($showsTrace, $isAjaxOnly, $requestIsAjax): void
     {
         // Set for Whoops 2.x json handler detection
@@ -126,7 +127,7 @@ class WhoopsFactoryTest extends TestCase
     /**
      * @return iterable<string, bool[]>
      */
-    public function provideConfig(): iterable
+    public static function provideConfig(): iterable
     {
         // @codingStandardsIgnoreStart
         //    test case                        => showsTrace, isAjaxOnly, requestIsAjax

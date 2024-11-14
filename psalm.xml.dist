@@ -6,6 +6,8 @@
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
     errorBaseline="psalm-baseline.xml"
     findUnusedPsalmSuppress="true"
+    findUnusedBaselineEntry="true"
+    findUnusedCode="false"
 >
     <projectFiles>
         <directory name="bin"/>
@@ -17,11 +19,6 @@
     </projectFiles>
 
     <issueHandlers>
-        <PossiblyInvalidArgument>
-            <errorLevel type="suppress">
-                <referencedFunction name="Laminas\Stratigility\path"/>
-            </errorLevel>
-        </PossiblyInvalidArgument>
         <DeprecatedClass>
             <errorLevel type="suppress">
                 <referencedClass name="Mezzio\Response\CallableResponseFactoryDecorator"/>
@@ -49,4 +46,8 @@
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
     </plugins>
+    
+    <stubs>
+        <file name=".psr-container.php.stub"/>
+    </stubs>
 </psalm>

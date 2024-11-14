@@ -14,7 +14,6 @@ use Laminas\Stratigility\MiddlewarePipe;
 use Mezzio\Application;
 use Mezzio\MiddlewareContainer;
 use Mezzio\MiddlewareFactory;
-use Mezzio\Router\AuraRouter;
 use Mezzio\Router\FastRouteRouter;
 use Mezzio\Router\LaminasRouter;
 use Mezzio\Router\Middleware\DispatchMiddleware;
@@ -24,6 +23,8 @@ use Mezzio\Router\Middleware\MethodNotAllowedMiddleware;
 use Mezzio\Router\Middleware\RouteMiddleware;
 use Mezzio\Router\RouteCollector;
 use Mezzio\Router\RouterInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
@@ -71,9 +72,8 @@ class IntegrationTest extends TestCase
      *
      * @psalm-return iterable<string, array{class-string<RouterInterface>}>
      */
-    public function routerAdapters(): iterable
+    public static function routerAdapters(): iterable
     {
-        yield 'aura' => [AuraRouter::class];
         yield 'fast-route' => [FastRouteRouter::class];
         yield 'laminas'    => [LaminasRouter::class];
     }
@@ -143,9 +143,9 @@ class IntegrationTest extends TestCase
     }
 
     /**
-     * @dataProvider routerAdapters
      * @psalm-param class-string<RouterInterface> $adapter
      */
+    #[DataProvider('routerAdapters')]
     public function testRoutingDoesNotMatchMethod(string $adapter): void
     {
         $app     = $this->createApplicationWithGetPost($adapter);
@@ -163,10 +163,10 @@ class IntegrationTest extends TestCase
     /**
      * @see https://github.com/zendframework/zend-expressive/issues/40
      *
-     * @group 40
-     * @dataProvider routerAdapters
      * @psalm-param class-string<RouterInterface> $adapter
      */
+    #[DataProvider('routerAdapters')]
+    #[Group('40')]
     public function testRoutingWithSamePathWithoutName(string $adapter): void
     {
         $app = $this->createApplicationWithGetPost($adapter);
@@ -189,10 +189,10 @@ class IntegrationTest extends TestCase
     /**
      * @see https://github.com/zendframework/zend-expressive/issues/40
      *
-     * @group 40
-     * @dataProvider routerAdapters
      * @psalm-param class-string<RouterInterface> $adapter
      */
+    #[DataProvider('routerAdapters')]
+    #[Group('40')]
     public function testRoutingWithSamePathWithName(string $adapter): void
     {
         $app = $this->createApplicationWithGetPost($adapter, 'foo-get', 'foo-post');
@@ -215,10 +215,10 @@ class IntegrationTest extends TestCase
     /**
      * @see https://github.com/zendframework/zend-expressive/issues/40
      *
-     * @group 40
-     * @dataProvider routerAdapters
      * @psalm-param class-string<RouterInterface> $adapter
      */
+    #[DataProvider('routerAdapters')]
+    #[Group('40')]
     public function testRoutingWithSamePathWithRouteWithoutName(string $adapter): void
     {
         $app = $this->createApplicationWithRouteGetPost($adapter);
@@ -241,9 +241,9 @@ class IntegrationTest extends TestCase
     /**
      * @see https://github.com/zendframework/zend-expressive/issues/40
      *
-     * @dataProvider routerAdapters
      * @psalm-param class-string<RouterInterface> $adapter
      */
+    #[DataProvider('routerAdapters')]
     public function testRoutingWithSamePathWithRouteWithName(string $adapter): void
     {
         $app = $this->createApplicationWithRouteGetPost($adapter, 'foo-get', 'foo-post');
@@ -266,10 +266,10 @@ class IntegrationTest extends TestCase
     /**
      * @see https://github.com/zendframework/zend-expressive/issues/40
      *
-     * @group 40
-     * @dataProvider routerAdapters
      * @psalm-param class-string<RouterInterface> $adapter
      */
+    #[DataProvider('routerAdapters')]
+    #[Group('40')]
     public function testRoutingWithSamePathWithRouteWithMultipleMethods(string $adapter): void
     {
         $router = new $adapter();
@@ -314,7 +314,7 @@ class IntegrationTest extends TestCase
      *     1: RequestMethod::METHOD_*
      * }>
      */
-    public function routerAdaptersForHttpMethods(): iterable
+    public static function routerAdaptersForHttpMethods(): iterable
     {
         $allMethods = [
             RequestMethod::METHOD_GET,
@@ -325,7 +325,7 @@ class IntegrationTest extends TestCase
             RequestMethod::METHOD_HEAD,
             RequestMethod::METHOD_OPTIONS,
         ];
-        foreach ($this->routerAdapters() as $adapterName => $adapter) {
+        foreach (self::routerAdapters() as $adapterName => $adapter) {
             $adapter = array_pop($adapter);
             foreach ($allMethods as $method) {
                 $name = sprintf('%s-%s', $adapterName, $method);
@@ -335,10 +335,10 @@ class IntegrationTest extends TestCase
     }
 
     /**
-     * @dataProvider routerAdaptersForHttpMethods
      * @psalm-param class-string<RouterInterface> $adapter
      * @psalm-param RequestMethod::METHOD_* $method
      */
+    #[DataProvider('routerAdaptersForHttpMethods')]
     public function testMatchWithAllHttpMethods(string $adapter, string $method): void
     {
         $router = new $adapter();
@@ -364,15 +364,13 @@ class IntegrationTest extends TestCase
     }
 
     /**
-     * @psalm-return iterable<array{
+     * @psalm-return iterable<string, array{
      *     0: class-string<RouterInterface>,
      *     1: RequestMethod::METHOD_*
      * }>
      */
-    public function allowedMethod(): iterable
+    public static function allowedMethod(): iterable
     {
-        yield 'aura-head'    => [AuraRouter::class, RequestMethod::METHOD_HEAD];
-        yield 'aura-options' => [AuraRouter::class, RequestMethod::METHOD_OPTIONS];
         yield 'fast-route-head'    => [FastRouteRouter::class, RequestMethod::METHOD_HEAD];
         yield 'fast-route-options' => [FastRouteRouter::class, RequestMethod::METHOD_OPTIONS];
         yield 'laminas-head'       => [LaminasRouter::class, RequestMethod::METHOD_HEAD];
@@ -380,10 +378,10 @@ class IntegrationTest extends TestCase
     }
 
     /**
-     * @dataProvider allowedMethod
      * @psalm-param class-string<RouterInterface> $adapter
      * @psalm-param RequestMethod::METHOD_* $method
      */
+    #[DataProvider('allowedMethod')]
     public function testAllowedMethodsWhenOnlyPutMethodSet(string $adapter, string $method): void
     {
         $router = new $adapter();
@@ -417,10 +415,8 @@ class IntegrationTest extends TestCase
         $this->assertSame('', (string) $result->getBody());
     }
 
-    /**
-     * @group 74
-     * @dataProvider routerAdapters
-     */
+    #[DataProvider('routerAdapters')]
+    #[Group('74')]
     public function testWithOnlyRootPathRouteDefinedRoutingToSubPathsShouldDelegate(string $adapter): void
     {
         $router = new $adapter();
