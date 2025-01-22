@@ -43,9 +43,6 @@
     <InvalidArgument>
       <code><![CDATA[$container->get(ResponseInterface::class)]]></code>
     </InvalidArgument>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$generator]]></code>
-    </PossiblyInvalidArgument>
   </file>
   <file src="src/Container/ErrorResponseGeneratorFactory.php">
     <MixedArgument>
