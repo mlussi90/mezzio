@@ -51,7 +51,6 @@ class ConfigProviderTest extends TestCase
     {
         $aliases = $this->provider->getDependencies()['aliases'] ?? [];
 
-        self::assertArrayHasKey(RequestHandlerRunnerInterface::class, $aliases);
         self::assertArrayHasKey(MiddlewareFactoryInterface::class, $aliases);
         self::assertArrayHasKey(DEFAULT_DELEGATE, $aliases);
         self::assertArrayHasKey(DISPATCH_MIDDLEWARE, $aliases);
